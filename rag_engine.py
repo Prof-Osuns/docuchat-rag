@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import HuggingFaceHub
@@ -20,7 +20,7 @@ class RAGEngine:
         )
 
         self.vectorstore = None
-        self.qa_chain = None
+        self.llm = None
 
     def load_pdf(self, pdf_path):
         """Load and process PDF"""
@@ -56,7 +56,7 @@ class RAGEngine:
         
         # Retrueve relevant documents
         retriever = self.vectorstore.as_retriever(search_kwargs={"k":3})
-        docs = retriever._get_relevant_documents(question)
+        docs = retriever.get_relevant_documents(question)
 
         # Combine context from documents
         context = "n/n".join([doc.page_content for doc in docs])
