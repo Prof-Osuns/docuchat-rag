@@ -1,9 +1,25 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.env
+.Python
+env/
 venv/
+*.egg-info/
+
+# IDE
 .vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.streamlit/secrets.toml
+
+# Test files
+test_*.py
 *.pdf
-.streamlit/
