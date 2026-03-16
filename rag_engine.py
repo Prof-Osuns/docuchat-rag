@@ -56,9 +56,9 @@ class RAGEngine:
         if not self.llm or not self.vectorstore:
             raise ValueError("System not initialized. Load documents first.")
         
-        # Retrieve relevant documents
-        retriever = self.vectorstore.as_retriever(search_kwargs={"k":3})
-        docs = retriever.get_invoke(question)
+        # Retrieve relevant documents using similarity search
+        docs = self.vectorstore.similarity_search(question, k=3)
+       
 
         # Combine context from documents
         context = "\n\n".join([doc.page_content for doc in docs])
@@ -78,6 +78,6 @@ class RAGEngine:
 
         return {
             "answer": answer,
-            "source": docs
+            "sources": docs
         }
     
