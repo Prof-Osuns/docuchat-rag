@@ -56,12 +56,12 @@ class RAGEngine:
         if not self.llm or not self.vectorstore:
             raise ValueError("System not initialized. Load documents first.")
         
-        # Retrueve relevant documents
+        # Retrieve relevant documents
         retriever = self.vectorstore.as_retriever(search_kwargs={"k":3})
-        docs = retriever.get_relevant_documents(question)
+        docs = retriever.get_invoke(question)
 
         # Combine context from documents
-        context = "n/n".join([doc.page_content for doc in docs])
+        context = "\n\n".join([doc.page_content for doc in docs])
 
         # Create prompt
         prompt = f"""Based on the following context, answer the question. If the answer is not in the context, say "I cannot find that information in the document."
@@ -74,7 +74,7 @@ class RAGEngine:
     Answer:"""
         
         # Get answer from LLM
-        answer = self.llm(prompt)
+        answer = self.llm.invoke(prompt)
 
         return {
             "answer": answer,
