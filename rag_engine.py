@@ -43,7 +43,9 @@ class RAGEngine:
 
         self.llm = HuggingFaceHub(
             repo_id="google/flan-t5-large",
-            model_kwargs={"temperature": 0.5, "max_length": 512}
+            task="text2text-generation",
+            model_kwargs={"temperature": 0.5, "max_length": 512},
+            huggingfacehub_api_token=hf_token
         )
 
         
