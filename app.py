@@ -41,13 +41,14 @@ uploaded_file = st.file_uploader(
 
 # Process document button
 if uploaded_file and hf_token:
-    if st.button("Process Document", type="primary"):
+    if st.sidebar.button("Process Document", type="primary"):
         with st.spinner("Processing PDF... This may take a minute..."):
+            temp_path = None
             try:
                 # Save uploaded file to a temporary location
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
                     tmp_file.write(uploaded_file.read())
-                    tmp_pdf_path = tmp_file.name
+                    tmp_path = tmp_file.name
             
                 # Initialize RAG
                 st.session_state.rag_engine = RAGEngine()
@@ -57,8 +58,6 @@ if uploaded_file and hf_token:
                 st.session_state.rag_engine.create_vectorstore(chunks)
                 st.session_state.rag_engine.setup_qa_chain(hf_token)
 
-                # Clean up temp file
-                os.unlink(tmp_path)
 
                 st.session_state.document_processed = True
                 st.sidebar.success(f"Processed {len(chunks)} chunks from {uploaded_file.name}!")
@@ -66,6 +65,11 @@ if uploaded_file and hf_token:
 
             except Exception as e:
                 st.sidebar.error(f"Error: {str(e)}")
+
+            finally:
+                # Clean up temp file if it exists
+                if temp_path and os.path.exists(temp_path):
+                    os.unlink(tmp_path)
 
 # Main Chat interface
 if st.session_state.document_processed and st.session_state.rag_engine:
