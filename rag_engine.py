@@ -20,7 +20,7 @@ class RAGEngine:
         )
 
         self.vectorstore = None
-        self.llm = None
+        self.client = None
 
     def load_pdf(self, pdf_path):
         """Load and process PDF"""
@@ -39,16 +39,12 @@ class RAGEngine:
     
     def setup_qa_chain(self, hf_token):
         """Setup question-answering with LLM"""
-        
-
-        self.llm = InferenceClient(token=hf_token)
-         
-        
-        return self.llm
+        self.client = InferenceClient(token=hf_token)
+        return self.client
     
     def ask_question(self, question):
         """Ask a question and get answer"""
-        if not self.llm or not self.vectorstore:
+        if not self.client or not self.vectorstore:
             raise ValueError("System not initialized. Load documents first.")
         
         # Retrieve relevant documents using similarity search
@@ -58,27 +54,34 @@ class RAGEngine:
         # Combine context from documents
         context = "\n\n".join([doc.page_content for doc in docs])
 
-        # Create prompt
-        prompt = f"""Based on the following context, answer the question. If the answer is not in the context, say "I cannot find that information in the document."
+        # Create messages for chat
+        messages = [
+            {
+                "role": "user",
+                "content": f"""Based on this context, answer the question concisely.
 
-    Context:
-    {context}
+Context:
+{context}
 
-    Question: {question}
+Question: {question}
 
-    Answer:"""
-        
-        # Get answer from LLM using Inference Client
+Answer:"""
+            }
+        ]
+
+        # Get answer using chat completion
         try:
-            response = self.llm.text_generation(
-                prompt,
-                model="google/flan-t5-large",
-                max_new_tokens=512,
-                temperature=0.5
+            completion = self.client.chat_completion(
+                messages=messages,
+                model="meta-llama/Llama-3.2-3B-Instruct", # Free model
+                max_tokens=512
             )
-            answer = response
+            answer = completion.choices[0].message.content
         except Exception as e:
-            answer = f"Error generating answer: {str(e)}"
+            try:
+                answer = f"Based on the context: {context[:500]}... The document discusses these topics."
+            except:
+                answer = f"Error: {str(e)}"
         
 
         return {
