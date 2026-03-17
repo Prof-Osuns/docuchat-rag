@@ -69,12 +69,16 @@ class RAGEngine:
     Answer:"""
         
         # Get answer from LLM using Inference Client
-        response = self.llm.text_generation(
-            prompt,
-            model="google/flan-t5-large",
-            max_new_tokens=512,
-            temperature=0.5
-        )
+        try:
+            response = self.llm.text_generation(
+                prompt,
+                model="google/flan-t5-large",
+                max_new_tokens=512,
+                temperature=0.5
+            )
+            answer = response
+        except Exception as e:
+            answer = f"Error generating answer: {str(e)}"
         
 
         return {
