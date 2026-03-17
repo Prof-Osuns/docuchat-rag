@@ -54,35 +54,30 @@ class RAGEngine:
         # Combine context from documents
         context = "\n\n".join([doc.page_content for doc in docs])
 
-        # Create messages for chat
-        messages = [
-            {
-                "role": "user",
-                "content": f"""Based on this context, answer the question concisely.
+        # Shorter, clearer prompt
+        prompt = f"""Answer this question using only the information below.
+   
 
-Context:
+Information:
 {context}
 
 Question: {question}
 
-Answer:"""
-            }
-        ]
-
+Answer (be concise and specific):"""
+       
         # Get answer using chat completion
         try:
+            messages = [{"role": "user", "content": prompt}]
             completion = self.client.chat_completion(
                 messages=messages,
                 model="meta-llama/Llama-3.2-3B-Instruct", # Free model
-                max_tokens=512
+                max_tokens=256,
+                temperature=0.3
             )
-            answer = completion.choices[0].message.content
+            answer = completion.choices[0].message.content.strip()
         except Exception as e:
-            try:
-                answer = f"Based on the context: {context[:500]}... The document discusses these topics."
-            except:
-                answer = f"Error: {str(e)}"
-        
+            # Simple fallback
+            answer = f"I found relevant information but couldn't generate a complete answer. Here's what I found: {context[:300]}..."
 
         return {
             "answer": answer,
