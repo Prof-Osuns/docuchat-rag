@@ -127,3 +127,5 @@ ML Engineer | Building AI Systems
 ## License
 
 MIT License - feel free to use for learning and projects!
+
+**Note:** Currently uses free-tier LLMs (Llama 3.2-3B). Answer quality can be improved by upgrading to GPT-4 or Claude (requires API key).
