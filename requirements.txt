@@ -6,3 +6,4 @@ sentence-transformers
 faiss-cpu
 pypdf
 python-dotenv
+huggingface-hub

@@ -2,7 +2,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import HuggingFaceHub
+from huggingface_hub import InferenceClient
 import os
 
 class RAGEngine:
@@ -39,15 +39,10 @@ class RAGEngine:
     
     def setup_qa_chain(self, hf_token):
         """Setup question-answering with LLM"""
-        os.environ["HUGGINGFACEHUB_API_TOKEN"] = hf_token
+        
 
-        self.llm = HuggingFaceHub(
-            repo_id="google/flan-t5-large",
-            task="text2text-generation",
-            model_kwargs={"temperature": 0.5, "max_length": 512},
-            huggingfacehub_api_token=hf_token
-        )
-
+        self.llm = InferenceClient(token=hf_token)
+         
         
         return self.llm
     
@@ -73,8 +68,14 @@ class RAGEngine:
 
     Answer:"""
         
-        # Get answer from LLM
-        answer = self.llm.invoke(prompt)
+        # Get answer from LLM using Inference Client
+        response = self.llm.text_generation(
+            prompt,
+            model="google/flan-t5-large",
+            max_new_tokens=512,
+            temperature=0.5
+        )
+        
 
         return {
             "answer": answer,
